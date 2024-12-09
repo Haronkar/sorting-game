@@ -9,7 +9,4 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div>
   ${container.length == 0}
   </div>
-  <div>
-  ${value}
-  </div>
 `;
