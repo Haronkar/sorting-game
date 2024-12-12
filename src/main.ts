@@ -1,5 +1,5 @@
 import "./style.css";
-import { addClick, setInnerHTML } from "./modules/utils";
+import { addClick, addContainer, setInnerHTML } from "./modules/utils";
 
 class Stack {
   stack: string[];
@@ -34,10 +34,39 @@ class Stack {
   }
 }
 
-const containers = new Map();
 let selectedElement: HTMLElement | null = null;
-const colors = ["R", "G", "G", "R", "G", "R"];
-const noOfContainers = 3;
+const containers = new Map();
+const noOfColors = 3; // max of 7
+const constainerSize = 4;
+const noOfContainers = noOfColors + 1;
+
+const colors = ["R", "G", "B", "P", "Y", "V", "I", "O"];
+const selectedColors = [...colors]
+  .sort(() => 0.5 - Math.random())
+  .slice(0, noOfColors)
+  .flatMap((c) => Array(constainerSize).fill(c));
+const colorArray = sortArrayRandom([...selectedColors]);
+
+console.log(selectedColors, colorArray);
+
+function sortArrayRandom(arr: string[]) {
+  const temp = [...arr];
+  while (areEqual(arr, temp)) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const randomIndex = Math.floor(Math.random() * (i + 1));
+      [temp[i], temp[randomIndex]] = [temp[randomIndex], temp[i]]; // Swap elements
+    }
+  }
+  return temp;
+}
+
+function areEqual(arr1: string[], arr2: string[]) {
+  return (
+    (arr1.length === arr2.length &&
+      arr1.every((value, index) => value === arr2[index])) ||
+    arr1.every((value, index) => value === arr2.reverse()[index])
+  );
+}
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div id="b">
@@ -59,7 +88,7 @@ function checkWinCondition() {
   const empty = new Map(
     Array.from(containers).filter(([key, value]) => value.size() == 0)
   );
-  if (filled.size === 2 && empty.size === 1) {
+  if (filled.size === constainerSize - 1 && empty.size === 1) {
     setInnerHTML("#b", "Win");
   }
 }
@@ -91,7 +120,7 @@ function swapSelected(from: HTMLElement, to: HTMLElement) {
   const fromStack = elementToStack(from);
   const toStack = elementToStack(to);
 
-  if (toStack && fromStack && toStack.size() < 3) {
+  if (toStack && fromStack && toStack.size() < constainerSize) {
     if (fromStack.peak() == toStack.peak() || toStack.isEmpty()) {
       toStack.push(fromStack.pop() || "");
       updateDOM();
@@ -105,39 +134,32 @@ function elementToStack(ele: HTMLElement) {
   return containers.get(id);
 }
 
+function createContainer() {
+  for (let i = 1; i <= noOfContainers; i++) {
+    addContainer(`container${i}`);
+    addClick(`#container${i}`, (event) => containerClick(event));
+  }
+}
+
 function initialize() {
+  createContainer();
+
   for (let i = 1; i <= noOfContainers; i++) {
     const c = new Stack();
     if (i < noOfContainers) {
-      c.push(colors.pop() || "");
-      c.push(colors.pop() || "");
-      c.push(colors.pop() || "");
+      for (let i = 0; i < constainerSize; i++) {
+        c.push(colorArray.pop() || "");
+      }
     }
 
     containers.set(`container${i}`, c);
   }
 
-  // const c1 = new Stack();
-  // const c2 = new Stack();
-  // const c3 = new Stack();
-
-  // c1.push("R");
-  // c1.push("G");
-  // c1.push("G");
-  // c2.push("R");
-  // c2.push("G");
-  // c2.push("R");
-
-  // containers.set("container1", c1);
-  // containers.set("container2", c2);
-  // containers.set("container3", c3);
-
-  addClick("#container3", (event) => containerClick(event));
-  addClick("#container2", (event) => containerClick(event));
-  addClick("#container1", (event) => containerClick(event));
+  // addClick("#container3", (event) => containerClick(event));
+  // addClick("#container2", (event) => containerClick(event));
+  // addClick("#container1", (event) => containerClick(event));
 
   updateDOM();
 }
 
 initialize();
-console.log(containers);
