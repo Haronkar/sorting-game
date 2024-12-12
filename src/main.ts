@@ -34,28 +34,13 @@ class Stack {
   }
 }
 
-const c1 = new Stack();
-const c2 = new Stack();
-const c3 = new Stack();
-
-const containers = new Map([
-  ["container1", c1],
-  ["container2", c2],
-  ["container3", c3],
-]);
-// containers.set("container3", new Stack());
-// containers.clear();
-// console.log(containers);
-c1.push("R");
-c1.push("G");
-c1.push("G");
-c2.push("R");
-c2.push("G");
-c2.push("R");
+const containers = new Map();
+let selectedElement: HTMLElement | null = null;
+const colors = ["R", "G", "G", "R", "G", "R"];
+const noOfContainers = 3;
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div id="b">
-  ${c1.isEmpty()}
   </div>
   <div id="container1">
   </div>
@@ -64,10 +49,6 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div id="container3">
   </div>
 `;
-
-const handleClick = () => {
-  console.log(c2.peak());
-};
 
 function checkWinCondition() {
   const filled = new Map(
@@ -88,7 +69,6 @@ function updateDOM() {
     setInnerHTML(`#${key}`, value.printStack());
   }
 }
-let selectedElement: HTMLElement | null = null;
 
 function containerClick(event: MouseEvent) {
   const clickedContainer = event.target as HTMLElement;
@@ -111,21 +91,53 @@ function swapSelected(from: HTMLElement, to: HTMLElement) {
   const fromStack = elementToStack(from);
   const toStack = elementToStack(to);
 
-  if (toStack?.isEmpty() || fromStack?.peak() == toStack?.peak()) {
-    toStack?.push(fromStack?.pop() || "");
-    updateDOM();
-    checkWinCondition();
-    selectedElement = null;
-  } else selectedElement = null;
+  if (toStack && fromStack && toStack.size() < 3) {
+    if (fromStack.peak() == toStack.peak() || toStack.isEmpty()) {
+      toStack.push(fromStack.pop() || "");
+      updateDOM();
+      checkWinCondition();
+      selectedElement = null;
+    } else selectedElement = null;
+  }
 }
 function elementToStack(ele: HTMLElement) {
   const id = ele.getAttribute("id") ?? "";
   return containers.get(id);
 }
 
-updateDOM();
+function initialize() {
+  for (let i = 1; i <= noOfContainers; i++) {
+    const c = new Stack();
+    if (i < noOfContainers) {
+      c.push(colors.pop() || "");
+      c.push(colors.pop() || "");
+      c.push(colors.pop() || "");
+    }
 
-addClick("#b", handleClick);
-addClick("#container3", (event) => containerClick(event));
-addClick("#container2", (event) => containerClick(event));
-addClick("#container1", (event) => containerClick(event));
+    containers.set(`container${i}`, c);
+  }
+
+  // const c1 = new Stack();
+  // const c2 = new Stack();
+  // const c3 = new Stack();
+
+  // c1.push("R");
+  // c1.push("G");
+  // c1.push("G");
+  // c2.push("R");
+  // c2.push("G");
+  // c2.push("R");
+
+  // containers.set("container1", c1);
+  // containers.set("container2", c2);
+  // containers.set("container3", c3);
+
+  addClick("#container3", (event) => containerClick(event));
+  addClick("#container2", (event) => containerClick(event));
+  addClick("#container1", (event) => containerClick(event));
+
+  updateDOM();
+}
+
+initialize();
+console.log(containers);
