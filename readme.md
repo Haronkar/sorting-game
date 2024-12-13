@@ -48,7 +48,7 @@ A **Water Sort Puzzle** game implemented in **TypeScript** using **Vite**. This 
 .
 ├── src                 # Source code
 │   ├── modules         # Utility
-│       ├── utils.js    # game utility
+│       ├── utils.ts    # game utility
 │   ├── style.css       # Main CSS file
 │   └── main.ts         # Main app entry point
 ├── index.html          # HTML template
