@@ -2,12 +2,13 @@ import "./style.css";
 import { addClick, addContainer, setInnerHTML, Stack } from "./modules/utils";
 
 let selectedContainer: HTMLElement | null = null;
+let tempSelectedContainer: HTMLElement | null = null;
 const containers = new Map();
 
 const colors = ["R", "G", "B", "P", "Y", "V", "I", "O"];
 const noOfColors = 3; // max of 7
 const constainerSize = 4;
-const noOfContainers = noOfColors + 1;
+const noOfContainers = noOfColors + 2;
 
 // Selects random colors from colors array and
 // fill the each color [noOfColors] times in the array
@@ -77,12 +78,16 @@ function containerClick(event: MouseEvent) {
 function checkSelected(element: HTMLElement) {
   if (selectedContainer == null) {
     selectedContainer = element;
+    tempSelectedContainer = selectedContainer;
+    selectedContainer.classList.add("selected");
     return;
   }
   if (selectedContainer === element) {
     selectedContainer = null;
+    tempSelectedContainer?.classList.remove("selected");
     return;
   }
+
   swapSelected(selectedContainer, element);
 }
 
@@ -106,10 +111,21 @@ function swapSelected(from: HTMLElement, to: HTMLElement) {
         toStack.push(pop || "");
       } while (pop == fromStack.peak() && toStack.size() < constainerSize);
 
+      tempSelectedContainer = selectedContainer;
+      tempSelectedContainer?.classList.remove("selected");
+
       selectedContainer = null; // reset the selected container after the swap is sucessful
-    } else selectedContainer = null; // reset the selected container after swap is not sucessful
+    } else {
+      tempSelectedContainer = selectedContainer;
+      tempSelectedContainer?.classList.remove("selected");
+      selectedContainer = null;
+    } // reset the selected container after swap is not sucessful
     updateDOM();
     checkWinCondition();
+  } else {
+    tempSelectedContainer = selectedContainer;
+    tempSelectedContainer?.classList.remove("selected");
+    selectedContainer = null;
   }
 }
 
@@ -143,7 +159,7 @@ function initialize() {
 
     containers.set(`container${i}`, c);
   }
-  console.log(containers);
+
   updateDOM();
 }
 
